@@ -1,18 +1,26 @@
 #include <stdlib.h>
-#include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
 #include <iostream>
+#include"arquivosH/tanque.h"
 #include "arquivosH/stb_image.h"
 #include "arquivosH/SOIL.h"
-#include <string>
 #include <math.h>
 #define STB_IMAGE_IMPLEMENTATION
    
 GLUquadric* quad;
 float anguloTanque = 0.0;
 float tanquePosX = 0.0, tanquePosZ =0.0;
-GLuint texID, texID1, texID2;
+GLuint texID, texID1, texID2, texID3;
+bool keys[256]; 
+
+void keyDown(unsigned char tecla, int x, int y) {
+    keys[tecla] = true;  // Marca a tecla como pressionada
+}
+
+void keyUp(unsigned char tecla, int x, int y) {
+    keys[tecla] = false;  // Marca a tecla como solta
+}
 
 void carregarTextura(GLuint tex_id, std::string filePath) {
     unsigned char* imgData;
@@ -45,117 +53,45 @@ void init() {
     carregarTextura(texID, "imagens/esteira_tanque.png");
     carregarTextura(texID1,"imagens/aco.jpeg");
     carregarTextura(texID2,"imagens/darkMetal.jpeg");
+    carregarTextura(texID3,"imagens/grama.jpeg");
 }
-
-void quadrado(GLuint texid, float Ybaixo, float Ycima, float Xesquerda, float Xdireita, float Zfrente, float Zatras) {
-    
-        glBindTexture(GL_TEXTURE_2D, texid);
-        glEnable(GL_TEXTURE_2D);
-
+void mapa(float x,float x2,float y,float z,float z2){
+    glBindTexture(GL_TEXTURE_2D,texID3);
+    glEnable(GL_TEXTURE_2D);
     glBegin(GL_QUADS);
-        // Frente
-        glTexCoord2f(1.0, 1.0); glVertex3f(Xesquerda, Ybaixo, Zfrente);  // a
-        glTexCoord2f(0.0, 1.0); glVertex3f(Xdireita, Ybaixo, Zfrente);   // b
-        glTexCoord2f(0.0, 0.0); glVertex3f(Xdireita, Ycima, Zfrente);    // c
-        glTexCoord2f(1.0, 0.0); glVertex3f(Xesquerda, Ycima, Zfrente);   // d
-
-        // Traseira
-        glTexCoord2f(1.0, 1.0); glVertex3f(Xesquerda, Ybaixo, Zatras);   // h
-        glTexCoord2f(0.0, 1.0); glVertex3f(Xdireita, Ybaixo, Zatras);    // e
-        glTexCoord2f(0.0, 0.0); glVertex3f(Xdireita, Ycima, Zatras);     // f
-        glTexCoord2f(1.0, 0.0); glVertex3f(Xesquerda, Ycima, Zatras);    // g
-
-        // Superior
-        glTexCoord2f(1.0, 1.0); glVertex3f(Xesquerda, Ycima, Zfrente);   // d
-        glTexCoord2f(0.0, 1.0); glVertex3f(Xdireita, Ycima, Zfrente);    // c
-        glTexCoord2f(0.0, 0.0); glVertex3f(Xdireita, Ycima, Zatras);     // f
-        glTexCoord2f(1.0, 0.0); glVertex3f(Xesquerda, Ycima, Zatras);    // g
-
-        // Inferior
-        glTexCoord2f(1.0, 1.0); glVertex3f(Xesquerda, Ybaixo, Zfrente);  // a
-        glTexCoord2f(0.0, 1.0); glVertex3f(Xdireita, Ybaixo, Zfrente);   // b
-        glTexCoord2f(0.0, 0.0); glVertex3f(Xdireita, Ybaixo, Zatras);    // e
-        glTexCoord2f(1.0, 0.0); glVertex3f(Xesquerda, Ybaixo, Zatras);   // h
-
-        // Direita
-         glTexCoord2f(0.0, 1.0); glVertex3f(Xdireita, Ybaixo, Zfrente);   // b
-         glTexCoord2f(0.0, 0.0); glVertex3f(Xdireita, Ybaixo, Zatras);    // e
-         glTexCoord2f(1.0, 0.0); glVertex3f(Xdireita, Ycima, Zatras);     // f
-         glTexCoord2f(1.0, 1.0); glVertex3f(Xdireita, Ycima, Zfrente);    // c
-
-        // Esquerda
-         glTexCoord2f(0.0, 1.0); glVertex3f(Xesquerda, Ybaixo, Zfrente);  // a
-         glTexCoord2f(0.0, 0.0); glVertex3f(Xesquerda, Ybaixo, Zatras);   // h
-         glTexCoord2f(1.0, 0.0); glVertex3f(Xesquerda, Ycima, Zatras);    // g
-         glTexCoord2f(1.0, 1.0); glVertex3f(Xesquerda, Ycima, Zfrente);   // d
+        glTexCoord2f(1.0, 1.0); glVertex3f(x, y, z);  // a
+        glTexCoord2f(0.0, 1.0); glVertex3f(x2, y, z);   // b
+        glTexCoord2f(0.0, 0.0); glVertex3f(x2, y, z2);    // e
+        glTexCoord2f(1.0, 0.0); glVertex3f(x, y, z2);   // h
     glEnd();
-
-    glDisable(GL_TEXTURE_2D);  // Desativa a textura após desenhar o quadrado
+    glDisable(GL_TEXTURE_2D);
 }
-void torre (GLuint texid, float Ybaixo, float Ycima, float Xesquerda, float Xdireita, float Zfrente, float Zatras) {  
-        glBindTexture(GL_TEXTURE_2D, texid);
-        glEnable(GL_TEXTURE_2D);
-
-    glBegin(GL_QUADS);
-        // Frente
-        glTexCoord2f(1.0, 1.0); glVertex3f(Xesquerda-0.3, Ybaixo, Zfrente-0.3);  // a
-        glTexCoord2f(1.0, 0.0); glVertex3f(Xdireita+0.3, Ybaixo, Zfrente-0.3);   // b
-        glTexCoord2f(0.0, 0.0); glVertex3f(Xdireita, Ycima, Zfrente);           // c
-        glTexCoord2f(1.0, 0.0); glVertex3f(Xesquerda, Ycima, Zfrente);          // d
-
-        // Traseira
-        glTexCoord2f(1.0, 0.0); glVertex3f(Xesquerda-0.3, Ybaixo, Zatras);   // h
-        glTexCoord2f(0.0, 1.0); glVertex3f(Xdireita+0.3, Ybaixo, Zatras);    // e
-        glTexCoord2f(0.0, 0.0); glVertex3f(Xdireita, Ycima, Zatras);     // f
-        glTexCoord2f(1.0, 1.0); glVertex3f(Xesquerda, Ycima, Zatras);    // g
-
-        // Superior
-        glTexCoord2f(1.0, 0.0); glVertex3f(Xesquerda, Ycima, Zfrente);   // d
-        glTexCoord2f(0.0, 0.0); glVertex3f(Xdireita, Ycima, Zfrente);    // c
-        glTexCoord2f(0.0, 1.0); glVertex3f(Xdireita, Ycima, Zatras);     // f
-        glTexCoord2f(1.0, 1.0); glVertex3f(Xesquerda, Ycima, Zatras);    // g
-        
-        // Direita
-         glTexCoord2f(1.0, 1.0); glVertex3f(Xdireita+0.3, Ybaixo, Zfrente-0.3);   // b
-         glTexCoord2f(0.0, 1.0); glVertex3f(Xdireita+0.3, Ybaixo, Zatras);    // e
-         glTexCoord2f(0.0, 0.0); glVertex3f(Xdireita, Ycima, Zatras);     // f
-         glTexCoord2f(1.0, 0.0); glVertex3f(Xdireita, Ycima, Zfrente);    // c
-
-        // Esquerda
-        glTexCoord2f(1.0, 1.0); glVertex3f(Xesquerda-0.3, Ybaixo, Zfrente-0.3);  // a
-        glTexCoord2f(1.0, 0.0); glVertex3f(Xesquerda-0.3, Ybaixo, Zatras);   // h
-        glTexCoord2f(0.0, 1.0); glVertex3f(Xesquerda, Ycima, Zatras);    // g
-        glTexCoord2f(0.0, 0.0); glVertex3f(Xesquerda, Ycima, Zfrente);   // d
-    glEnd();
-
-    glDisable(GL_TEXTURE_2D);  // Desativa a textura após desenhar o quadrado
-}
-
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
  
     glLoadIdentity();
-    glTranslatef(0.0f, 0.0f, -7.0f);
+    glTranslatef(0.0f, 0.0f, -14.0f);
+    glPushMatrix();
+    //mapa
+    mapa(-50,50,-1.5,50,-50);
+    glPopMatrix();
 
     glPushMatrix();
+
     glTranslatef(tanquePosX,0.0,tanquePosZ);
     glRotatef(anguloTanque,0.0,1.0,0.0);
 
-    // corpo principal
-    quadrado(texID1, -1.0, 0.5, -1.0, 1.0, 1.4, -1.4);
-    
-    // torre 
-    torre(texID1, 0.5, 1.3, -0.5, 0.5, -0.7, 0.4);
-    
-    // canhão
-    quadrado(texID2, 0.7, 1.0, -0.2, 0.2, 0.4, 2.4);
-    
-    // roda esquerda 
-    quadrado(texID, -1.2, -0.5, 1.7, 0.7, 1.9, -1.9);
-    
-    // roda direita
-    quadrado(texID, -1.2, -0.5, -1.7, -0.7, 1.9, -1.9);
-     glPopMatrix();
+        // corpo principal
+        quadrado(texID1, -1.0, 0.5, -1.0, 1.0, 1.4, -1.4);
+        // torre 
+        torre(texID1, 0.5, 1.3, -0.5, 0.5, -0.7, 0.4);
+        // canhão
+        quadrado(texID2, 0.7, 1.0, -0.2, 0.2, 0.4, 2.4);
+        // roda esquerda 
+        quadrado(texID, -1.2, -0.5, 1.7, 0.7, 1.9, -1.9);
+        // roda direita
+        quadrado(texID, -1.2, -0.5, -1.7, -0.7, 1.9, -1.9);
+    glPopMatrix();
 
     glutSwapBuffers();
 }
@@ -167,47 +103,44 @@ void reshape(int w, int h) {
     gluPerspective(45.0, (double)w / (double)h, 1.0, 200.0);
     glMatrixMode(GL_MODELVIEW);
 }
-void teclado(unsigned char tecla, int x, int y) {
-    float velocidade = 0.5;
-    float radiano = anguloTanque * M_PI / 180.0; 
-    float dx = velocidade * sin(radiano); 
-    float dz = velocidade * cos(radiano); 
+void update() {
+    float velocidade = 0.1;
+    float radiano = anguloTanque * M_PI / 180.0;
+    float dx = velocidade * sin(radiano);
+    float dz = velocidade * cos(radiano);
 
-    switch (tecla) {
-        case 's':
-            tanquePosX -= dx;
-            tanquePosZ -= dz;
-            break;
-        case 'w':
-            tanquePosX += dx;
-            tanquePosZ += dz;
-            break;
-        case 'a':
-            anguloTanque += 5.0;
-            break;
-        case 'd':
-            anguloTanque -= 5.0;
-            break;
-            case 'd'+'s':
-            anguloTanque-= 5.0;
-            tanquePosX -= dx;
-            tanquePosZ -= dz;
+    // Verificar quais teclas estão pressionadas e ajustar os movimentos
+    if (keys['w']) {
+        tanquePosX += dx;
+        tanquePosZ += dz;
     }
-    glutPostRedisplay();
+    if (keys['s']) {
+        tanquePosX -= dx;
+        tanquePosZ -= dz;
+    }
+    if (keys['a']) {
+        anguloTanque += 1.0;  // Rotação mais suave
+    }
+    if (keys['d']) {
+        anguloTanque -= 1.0;  // Rotação mais suave
+    }
+
+    glutPostRedisplay();  // Redesenha a cena
 }
-
-
 int main(int argc, char** argv) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-    glutInitWindowSize(800, 600);
+    glutInitWindowSize(1260, 720);
     glutCreateWindow("tanque 3D");
 
     init();
 
     glutDisplayFunc(display);
     glutReshapeFunc(reshape); 
-    glutKeyboardFunc(teclado);
+    glutKeyboardFunc(keyDown);
+    glutKeyboardUpFunc(keyUp);
+    
+    glutIdleFunc(update);
     glutPostRedisplay(); // Chama a função idle continuamente para animar o cubo
 
     glutMainLoop();
