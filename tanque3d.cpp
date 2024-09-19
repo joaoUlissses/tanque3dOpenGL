@@ -75,9 +75,7 @@ void display() {
     //mapa
     mapa(-50,50,-1.5,50,-50);
     glPopMatrix();
-
     glPushMatrix();
-
     glTranslatef(tanquePosX,0.0,tanquePosZ);
     glRotatef(anguloTanque,0.0,1.0,0.0);
 
