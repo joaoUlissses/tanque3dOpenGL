@@ -190,6 +190,11 @@ void torre (GLuint texid, float Ybaixo, float Ycima, float Xesquerda,
         glVertex3f(X-2.0, 4.0, Y+4.0);     // h
         glVertex3f(X-2.0, 9.0, Y+4.0);     // g
         glVertex3f(X-2.0, 9.0, Y-2.0);         // d
+        //baixo
+        glVertex3f(X-2.0, 4.0, Y-2.0);         // a
+        glVertex3f(X+4.0, 4.0, Y-2.0);     // b
+        glVertex3f(X-2.0, 4.0, Y+4.0);     // h
+        glVertex3f(X+4.0, 4.0, Y+4.0); // e
 
     glColor3f(0.0,1.0,0.0);
     glEnd();

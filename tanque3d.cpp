@@ -6,7 +6,7 @@
 #include "arquivosH/stb_image.h"
 #include "arquivosH/SOIL.h"
 #include <math.h>
-#include <random>
+
 #define STB_IMAGE_IMPLEMENTATION
    
 GLUquadric* quad;
