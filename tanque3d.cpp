@@ -6,12 +6,13 @@
 #include "arquivosH/stb_image.h"
 #include "arquivosH/SOIL.h"
 #include <math.h>
+#include <random>
 #define STB_IMAGE_IMPLEMENTATION
    
 GLUquadric* quad;
 float anguloTanque = 0.0;
 float tanquePosX = 0.0, tanquePosZ =0.0, camView = 25.0;
-GLuint texID, texID1, texID2, texID3;
+GLuint texID, texID1, texID2, texID3, texID4,texID5, texID6 ;
 bool keys[256]; 
 
 void cameraSeguirTorre() {
@@ -19,9 +20,8 @@ void cameraSeguirTorre() {
     float torrePosY = 1.5;
     float torrePosZ = tanquePosZ;
 
-    // Cálculo da posição da câmera atrás da torre
     float distanciaCamera = 12.0;  // Distância da câmera em relação à torre
-    float alturaCamera = 2.0;     // Altura da câmera em relação ao chão
+    float alturaCamera = 3.0;     // Altura da câmera em relação ao chão
 
     float anguloRadianos = (camView + anguloTanque) * M_PI / 180.0;
 
@@ -73,11 +73,14 @@ void init() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_2D);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-    glGenTextures(3, &texID);
+    glGenTextures(7, &texID);
     carregarTextura(texID, "imagens/esteira_tanque.png");
-    carregarTextura(texID1,"imagens/aco.jpeg");
+    carregarTextura(texID1,"imagens/camouflag.jpg");
     carregarTextura(texID2,"imagens/darkMetal.jpeg");
     carregarTextura(texID3,"imagens/grama.jpeg");
+    carregarTextura(texID4,"imagens/roda_tanque.png");
+    carregarTextura(texID5, "imagens/folha.png");
+    carregarTextura(texID6, "imagens/tronco.png");
 }
 void mapa(float x,float x2,float y,float z,float z2){
     glBindTexture(GL_TEXTURE_2D,texID3);
@@ -100,7 +103,8 @@ void display() {
 
     glPushMatrix();
     // Desenhar o mapa
-    mapa(-150, 150, -1.5, 50, -50);
+    mapa(-150, 150, -1.5, 150, -150);
+    gerarFloresta();
     glPopMatrix();
 
     glPushMatrix();
@@ -111,8 +115,8 @@ void display() {
     quadrado(texID1, -1.0, 0.5, -1.0, 1.0, 1.4, -1.4);
 
     // Rodas esquerda e direita
-    quadrado(texID, -1.2, -0.5, 1.7, 0.7, 1.9, -1.9);  // Roda esquerda
-    quadrado(texID, -1.2, -0.5, -1.7, -0.7, 1.9, -1.9); // Roda direita
+    quadrado_roda(texID,texID4, -1.2, -0.5, 1.7, 0.7, 1.9, -1.9);  // Roda esquerda
+    quadrado_roda(texID,texID4, -1.2, -0.5, -1.7, -0.7, 1.9, -1.9); // Roda direita
 
     // Torre rotacionável
     glPushMatrix();
@@ -122,6 +126,7 @@ void display() {
     // Canhão
     quadrado(texID2, 0.7, 1.0, -0.2, 0.2, 0.4, 2.4);
     glPopMatrix();
+    
     glPopMatrix();
 
     glutSwapBuffers();
