@@ -10,9 +10,33 @@
    
 GLUquadric* quad;
 float anguloTanque = 0.0;
-float tanquePosX = 0.0, tanquePosZ =0.0;
+float tanquePosX = 0.0, tanquePosZ =0.0, camView = 25.0;
 GLuint texID, texID1, texID2, texID3;
 bool keys[256]; 
+
+void cameraSeguirTorre() {
+    float torrePosX = tanquePosX;
+    float torrePosY = 1.5;
+    float torrePosZ = tanquePosZ;
+
+    // Cálculo da posição da câmera atrás da torre
+    float distanciaCamera = 12.0;  // Distância da câmera em relação à torre
+    float alturaCamera = 2.0;     // Altura da câmera em relação ao chão
+
+    float anguloRadianos = (camView + anguloTanque) * M_PI / 180.0;
+
+    float cameraPosX = torrePosX - distanciaCamera * sin(anguloRadianos);
+    float cameraPosY = torrePosY + alturaCamera;
+    float cameraPosZ = torrePosZ - distanciaCamera * cos(anguloRadianos);
+
+    float verAtX = torrePosX;
+    float verAtY = torrePosY;
+    float verAtZ = torrePosZ;
+
+    gluLookAt(cameraPosX, cameraPosY, cameraPosZ,
+              verAtX, verAtY, verAtZ,
+              0.0, 1.0, 0.0);
+}
 
 void keyDown(unsigned char tecla, int x, int y) {
     keys[tecla] = true;  // Marca a tecla como pressionada
@@ -68,27 +92,36 @@ void mapa(float x,float x2,float y,float z,float z2){
 }
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
- 
-    glLoadIdentity();
-    glTranslatef(0.0f, 0.0f, -14.0f);
-    glPushMatrix();
-    //mapa
-    mapa(-50,50,-1.5,50,-50);
-    glPopMatrix();
-    glPushMatrix();
-    glTranslatef(tanquePosX,0.0,tanquePosZ);
-    glRotatef(anguloTanque,0.0,1.0,0.0);
 
-        // corpo principal
-        quadrado(texID1, -1.0, 0.5, -1.0, 1.0, 1.4, -1.4);
-        // torre 
-        torre(texID1, 0.5, 1.3, -0.5, 0.5, -0.7, 0.4);
-        // canhão
-        quadrado(texID2, 0.7, 1.0, -0.2, 0.2, 0.4, 2.4);
-        // roda esquerda 
-        quadrado(texID, -1.2, -0.5, 1.7, 0.7, 1.9, -1.9);
-        // roda direita
-        quadrado(texID, -1.2, -0.5, -1.7, -0.7, 1.9, -1.9);
+    glLoadIdentity();
+
+    // Configurar a câmera para seguir a torre
+    cameraSeguirTorre();
+
+    glPushMatrix();
+    // Desenhar o mapa
+    mapa(-150, 150, -1.5, 50, -50);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(tanquePosX, 0.0, tanquePosZ);
+    glRotatef(anguloTanque, 0.0, 1.0, 0.0);
+
+    // Corpo principal do tanque
+    quadrado(texID1, -1.0, 0.5, -1.0, 1.0, 1.4, -1.4);
+
+    // Rodas esquerda e direita
+    quadrado(texID, -1.2, -0.5, 1.7, 0.7, 1.9, -1.9);  // Roda esquerda
+    quadrado(texID, -1.2, -0.5, -1.7, -0.7, 1.9, -1.9); // Roda direita
+
+    // Torre rotacionável
+    glPushMatrix();
+    glRotatef(camView, 0.0, 1.0, 0.0);
+    torre(texID1, 0.5, 1.3, -0.5, 0.5, -0.7, 0.4);
+
+    // Canhão
+    quadrado(texID2, 0.7, 1.0, -0.2, 0.2, 0.4, 2.4);
+    glPopMatrix();
     glPopMatrix();
 
     glutSwapBuffers();
@@ -118,10 +151,19 @@ void update() {
     }
     if (keys['a']) {
         anguloTanque += 1.0;  // Rotação mais suave
+        camView -=1.0;
     }
     if (keys['d']) {
         anguloTanque -= 1.0;  // Rotação mais suave
+        camView+=1.0;
     }
+    if (keys['j']){
+        camView+=1.0;
+    }
+    if(keys['l']){
+        camView-=1.0;
+    }
+    
 
     glutPostRedisplay();  // Redesenha a cena
 }
